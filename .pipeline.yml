@@ -1,0 +1,31 @@
+version: '1.0'
+
+steps:
+  - name: install_dependencies
+    description: Install all project dependencies
+    commands:
+      - cd backend && pip install -r requirements.txt
+      - cd frontend && npm ci
+
+  - name: run_tests
+    description: Run backend and frontend tests
+    commands:
+      - cd backend && python -m pytest tests/ -v --cov=. --cov-report=term-missing
+      - cd frontend && npm run test -- --run
+
+  - name: build_frontend
+    description: Build frontend for production
+    commands:
+      - cd frontend && npm run build
+
+  - name: build_docker
+    description: Build Docker images
+    commands:
+      - docker-compose build
+
+  - name: deploy
+    description: Deploy the application
+    commands:
+      - docker-compose up -d
+    environment:
+      DOCKER_HOST: tcp://localhost:2375
